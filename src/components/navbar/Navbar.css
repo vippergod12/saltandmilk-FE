@@ -1,0 +1,11 @@
+/* src/components/Navbar.css */
+
+/* Bạn có thể thêm các style tùy chỉnh không có trong Tailwind tại đây. */
+/* Ví dụ, thêm một hiệu ứng transition mượt mà cho logo */
+.navbar-logo {
+  transition: transform 0.3s ease-in-out;
+}
+
+.navbar-logo:hover {
+  transform: scale(1.05);
+}
