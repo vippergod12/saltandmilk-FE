@@ -1,14 +1,50 @@
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* Khai báo cho Roboto Regular */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/Roboto/Roboto.ttf') format('truetype');
+}
+
+@font-face{
+  font-family: 'Google_Sans_Code';
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url('/assets/fonts/Google_Sans_Code/GoogleSansCode.ttf') format('trueType');
+}
+
+@font-face{
+  font-family: 'Nunito Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/Nunito_Sans/NunitoSans.ttf') format('truetype');
+}
+
+@font-face{
+  font-family: 'Corben';
+  font-style: normal;
+  font-weight: 400 1000;
+  font-display: swap;
+  src: url('/assets/fonts/Corben-Regular.ttf') format('truetype');
+}
+
+@theme{
+  --font-sans: "Google_Sans_Code";
+  --font-roboto: "Roboto";
+}
 @import "tailwindcss";
-@tailwind utilities;
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
+  font-size: 1rem;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #fff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

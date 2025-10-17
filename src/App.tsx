@@ -8,7 +8,7 @@ function App() {
     <Router>
       <div className="">
         <Navbar />
-        <main className="container mx-auto px-4 py-8">
+        <main className="mx-auto px-4 py-8">
             {/* 4. <Routes> là nơi định nghĩa các tuyến đường có thể có */}
             <Routes>
               {/* 5. Mỗi <Route> là một ánh xạ giữa 'path' (đường dẫn) và 'element' (component trang) */}
