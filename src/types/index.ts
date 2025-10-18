@@ -17,6 +17,8 @@ export interface Category {
   id: string;
   name: string;
   image_url: string;
+  slug: string;
+  children?: Category[]; // Mảng chứa các category con, hỗ trợ đệ quy
 }
 
 // Dòng 3: Sản phẩm bán chạy
@@ -37,6 +39,9 @@ export interface Product {
   image_url: string;
   price: number;
   old_price?: number; // Tùy chọn
+  category: string;
+  createdAt: string; // Dùng để sắp xếp hàng mới/cũ
+  color: string;
 }
 
 // Dòng 4: Loại Tab
@@ -45,4 +50,10 @@ export type ProductTabId = 'promotion' | 'seasonal' | 'new';
 export interface ProductTab {
   id: ProductTabId;
   label: string;
+}
+
+export interface FilterOptions {
+  prices: string[];
+  sizes: string[];
+  colors: string[];
 }

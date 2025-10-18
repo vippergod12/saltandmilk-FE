@@ -3,7 +3,7 @@
 import { mockBanners, mockCategories, mockBestSellers, mockProductsByTab } from '../data/mockData';
 import type { Banner, Category, ProductBestSeller, Product, ProductTabId } from '../types';
 
-const API_DELAY = 500; // Giả lập độ trễ 500ms
+const API_DELAY = 100; // Giả lập độ trễ 500ms
 
 // Dòng 1: Fetch Banners
 export const fetchBanners = (): Promise<Banner[]> => {
@@ -38,5 +38,15 @@ export const fetchProductsByTab = (tabId: ProductTabId): Promise<Product[]> => {
     setTimeout(() => {
       resolve(mockProductsByTab[tabId] || []);
     }, API_DELAY);
+  });
+};
+
+export const fetchAllProducts = (): Promise<Product[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // Lấy tất cả các mảng sản phẩm từ các tab và gộp lại
+      const allProducts = Object.values(mockProductsByTab).flat();
+      resolve(allProducts);
+    }, 100); // Giả lập độ trễ
   });
 };

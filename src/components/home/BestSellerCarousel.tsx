@@ -30,7 +30,7 @@ export const BestSellerCarousel: React.FC = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Sản Phẩm Bán Chạy</h2>
+      <h2 className="text-3xl text-center text-gray-800 font-semibold mb-8">Sản Phẩm Bán Chạy</h2>
       <Swiper
         modules={[Navigation, Pagination, Autoplay, EffectCoverflow]}
           effect={'coverflow'}
@@ -51,7 +51,7 @@ export const BestSellerCarousel: React.FC = () => {
             // Khi chiều rộng màn hình >= 1024px
             1024: {
               slidesPerView: 5, // hoặc 4, tùy vào thiết kế của bạn
-              spaceBetween: 50,
+              spaceBetween: 30,
             },
           }}
           loop={true}
@@ -69,7 +69,7 @@ export const BestSellerCarousel: React.FC = () => {
           className="mySwiper"
       >
         {products.map((product) => (
-          <SwiperSlide key={product.id} className="h-auto">
+          <SwiperSlide key={product.id} className="h-auto mb-10 text-gray-800">
             <ProductCard product={product} />
           </SwiperSlide>
         ))}
