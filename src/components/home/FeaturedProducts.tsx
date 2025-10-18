@@ -29,7 +29,7 @@ export const FeaturedProducts: React.FC = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4 text-center text-gray-800 font-semibold">Khám Phá Thêm</h2>
+      <h2 className="text-3xl mb-8 text-center text-gray-800 font-semibold">Khám Phá Thêm</h2>
       
       {/* Dòng 1: Các Tab */}
       <div className="flex justify-center items-center gap-4 mb-6">

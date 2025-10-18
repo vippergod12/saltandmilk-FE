@@ -2,6 +2,8 @@ import './App.css'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';;
 import Navbar from './components/navbar/Navbar';
 import HomePage from './components/home/Home';
+import Footer from './components/footer/Footer'
+import ProductListPage from './components/product-list/ProductListPage';
 function App() {
 
   return (
@@ -13,8 +15,10 @@ function App() {
             <Routes>
               {/* 5. Mỗi <Route> là một ánh xạ giữa 'path' (đường dẫn) và 'element' (component trang) */}
               <Route path="/" element={<HomePage />} />
+              <Route path="/bo-suu-tap" element={<ProductListPage/>}/>
             </Routes>
-          </main>
+        </main>
+        <Footer />
       </div>
     </Router>
   );
