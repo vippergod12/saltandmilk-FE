@@ -1,7 +1,12 @@
 // src/components/product-list/SortDropdown.tsx
 import React from 'react';
 
-const SortDropdown: React.FC = () => {
+interface SortDropdownProps {
+  sortOption: string;
+  onSortChange: (newOption: string) => void;
+}
+
+const SortDropdown: React.FC<SortDropdownProps>= ({sortOption, onSortChange}) => {
     const sortOptions = [
         'Mặc định', 'Hàng mới nhất', 'Hàng cũ nhất', 
         'Giá: Tăng dần', 'Giá: Giảm dần', 'Tên: A-Z', 'Tên: Z-A'
@@ -9,7 +14,10 @@ const SortDropdown: React.FC = () => {
 
     return (
         <div className="flex justify-end mb-4">
-            <select className="border rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            <select className="border rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            value = {sortOption}
+            onChange={(e) => onSortChange(e.target.value)}
+            >
                 {sortOptions.map(option => (
                     <option key={option} value={option}>{option}</option>
                 ))}
