@@ -2,6 +2,12 @@
 
 import React from "react";
 
+export interface ApiResponse<T> {
+  code: number;
+  result: T;
+  message?: string; // Tùy chọn, nếu API của bạn có trả về
+}
+
 // Dòng 1: Banner
 export interface Banner {
   id: string;
@@ -16,7 +22,7 @@ export interface Banner {
 export interface Category {
   id: string;
   name: string;
-  image_url: string;
+  imgUrl: string;
   slug: string;
   children?: Category[]; // Mảng chứa các category con, hỗ trợ đệ quy
 }

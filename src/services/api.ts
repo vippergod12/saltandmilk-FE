@@ -1,27 +1,48 @@
 // src/services/api.ts
 
-import { mockBanners, mockCategories, mockBestSellers, mockProductsByTab } from '../data/mockData';
-import type { Banner, Category, ProductBestSeller, Product, ProductTabId } from '../types';
+ import { mockCategories, mockBestSellers, mockProductsByTab } from '../data/mockData';
+import axios from 'axios';
+import type { ApiResponse,Banner, Category, ProductBestSeller, Product, ProductTabId } from '../types';
 
 const API_DELAY = 100; // Giả lập độ trễ 500ms
+// 1. Tạo một instance của axios với cấu hình chung
+// URL này nên được đặt trong file môi trường (.env) để linh hoạt
+const apiClient = axios.create({
+  baseURL: 'http://localhost:8080/api', // Thay bằng URL backend của bạn
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 
 // Dòng 1: Fetch Banners
-export const fetchBanners = (): Promise<Banner[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockBanners.filter(b => b.is_active));
-    }, API_DELAY);
-  });
+export const fetchBanners = async (): Promise<ApiResponse<Banner[]>> => {
+  try {
+  const response = await apiClient.get<ApiResponse<Banner[]>>('/banners');
+    return response.data; // Bây giờ response.data khớp với kiểu ApiResponse<Banner[]>
+  } catch (error) {
+    console.error('Lỗi khi tải banners:', error);
+    throw error; // Ném lỗi ra để component có thể xử lý (hiển thị thông báo lỗi)
+  }
+};
+
+export const fetchCategories = async (): Promise<ApiResponse<Category[]>> => {
+  try{
+    const response = await apiClient.get<ApiResponse<Category[]>>('/categories');
+    return response.data;
+  }catch(error){
+    throw error;
+  }
 };
 
 // Dòng 2: Fetch Categories
-export const fetchCategories = (): Promise<Category[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockCategories);
-    }, API_DELAY);
-  });
-};
+// export const fetchCategories = (): Promise<Category[]> => {
+//   return new Promise((resolve) => {
+//     setTimeout(() => {
+//       resolve(mockCategories);
+//     }, API_DELAY);
+//   });
+// };
 
 // Dòng 3: Fetch Best Sellers
 export const fetchBestSellers = (): Promise<ProductBestSeller[]> => {

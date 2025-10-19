@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectCoverflow } from 'swiper/modules';
 import { fetchBanners } from '../../services/api';
 import type { Banner } from '../../types';
+// import '../../assets/css/banner/Banner.css'
 
 // Import Swiper styles
 import '../../../node_modules/swiper/swiper.css';
@@ -19,8 +20,15 @@ export const BannerCarousel: React.FC = () => {
     const loadBanners = async () => {
       try {
         setLoading(true);
-        const data = await fetchBanners();
-        setBanners(data);
+        const responseData = await fetchBanners(); // responseData bây giờ là { code, result }
+        
+        // ✅ Truy cập vào thuộc tính 'result'
+        if (responseData && Array.isArray(responseData.result)) {
+            setBanners(responseData.result);
+        } else {
+            console.error("Dữ liệu trả về không đúng định dạng:", responseData);
+            setBanners([]); // Gán mảng rỗng để tránh lỗi
+        }
       } catch (error) {
         console.error("Failed to fetch banners:", error);
       } finally {
@@ -59,12 +67,12 @@ export const BannerCarousel: React.FC = () => {
           className="mySwiper"
     >
       {banners.map((banner) => (
-        <SwiperSlide key={banner.id}>
+        <SwiperSlide key={banner.id} className="h-96 w-auto aspect-[3/1]">
           <a href={banner.target_url}>
             <img 
               src={banner.image_url} 
               alt={banner.title} 
-              className="w-full h-full object-cover" 
+              className="w-full h-full object-contain" 
             />
           </a>
         </SwiperSlide>

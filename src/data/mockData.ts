@@ -1,34 +1,6 @@
 // src/data/mockData.ts
 
-import type { Banner, Category, ProductBestSeller, Product, ProductTab, ProductTabId } from '../types';
-
-// Dòng 1: Mock Banners (Khớp với interface Banner)
-export const mockBanners: Banner[] = [
-  {
-    id: 'b1',
-    title: 'Banner 1',
-    image_url: 'https://picsum.photos/seed/banner1/1200/400',
-    target_url: '/sale/summer',
-    is_active: true,
-    display_order: 1,
-  },
-  {
-    id: 'b2',
-    title: 'Banner 2',
-    image_url: 'https://picsum.photos/seed/banner2/1200/400',
-    target_url: '/products/new-arrivals',
-    is_active: true,
-    display_order: 2,
-  },
-  {
-    id: 'b3',
-    title: 'Banner 3',
-    image_url: 'https://picsum.photos/seed/banner3/1200/400',
-    target_url: '/categories/all',
-    is_active: true,
-    display_order: 3,
-  },
-];
+import type { Category, ProductBestSeller, Product, ProductTab, ProductTabId } from '../types';
 
 // Dòng 2: Mock Categories (Khớp với interface Category)
 export const mockCategories: Category[] = [
