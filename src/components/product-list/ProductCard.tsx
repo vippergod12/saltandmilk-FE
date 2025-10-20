@@ -6,6 +6,7 @@ interface ProductCardProps {
     product: Product;
 }
 
+
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     return (
         <div className="border cursor-pointer rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300">

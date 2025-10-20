@@ -2,6 +2,12 @@
 
 import React from "react";
 
+export interface ApiResponse<T> {
+  code: number;
+  result: T;
+  message?: string; // Tùy chọn, nếu API của bạn có trả về
+}
+
 // Dòng 1: Banner
 export interface Banner {
   id: string;
@@ -16,7 +22,7 @@ export interface Banner {
 export interface Category {
   id: string;
   name: string;
-  image_url: string;
+  imgUrl: string;
   slug: string;
   children?: Category[]; // Mảng chứa các category con, hỗ trợ đệ quy
 }
@@ -37,19 +43,46 @@ export interface Product {
   id: string;
   name: string;
   image_url: string;
-  price: number;
-  old_price?: number; // Tùy chọn
-  category: string;
+  base_price: number;
   createdAt: string; // Dùng để sắp xếp hàng mới/cũ
-  color: string;
+  
+    // Liên kết
+  category?: {
+    id: string;
+    name: string;
+  };
+  tags?: {
+    tag_id: number;
+    name: string;
+  }[];
+variants: ProductVariant[];
+}
+
+export interface ProductVariant {
+  variantId: string;
+  sku: string;
+  stockQuantity: number;
+  price: number;
+  salePrice: number | null;
+  imageUrl: string;
+  productId: string;
+  productName: string;
+  sizeId: number;
+  sizeName: string;
+  colorId: number;
+  colorName: string;
+}
+export interface Tag{
+  tag_id: number;
+  name: string;
 }
 
 // Dòng 4: Loại Tab
-export type ProductTabId = 'promotion' | 'seasonal' | 'new';
+export type ProductTabId = number;
 
 export interface ProductTab {
   id: ProductTabId;
-  label: string;
+  name: string;
 }
 
 export interface FilterOptions {

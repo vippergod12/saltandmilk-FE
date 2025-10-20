@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import type { Category, Product, FilterOptions } from '../../types';
 import { fetchCategories, fetchAllProducts } from '../../services/api';
 
@@ -59,6 +59,67 @@ const ProductListPage: React.FC = () => {
         sizes: [],
         colors: [],
     });
+    
+
+    const [sortOption, setSortOption] = useState<string>('Mặc định');
+// GỘP LOGIC: Chỉ còn một biến duy nhất `displayProducts`
+    const displayProducts = useMemo(() => {
+        // BƯỚC 1: LỌC SẢN PHẨM
+        const filtered = allProducts.filter(product => {
+              const variant = product.variants;
+            // Lọc theo danh mục
+            const categoryMatch = !selectedCategory || product.category?.id === selectedCategory;
+            if (!categoryMatch) return false;
+
+            // Lọc theo màu sắc
+            const selectedColors = selectedFilters.colors;
+            if (selectedColors.length > 0 && !selectedColors.includes(variant.color)) {
+                return false;
+            }
+
+            // Lọc theo giá
+            const selectedPrices = selectedFilters.prices;
+            if (selectedPrices.length > 0) {
+                const priceMatch = selectedPrices.some(rangeString => {
+                    const { min, max } = parsePriceRange(rangeString);
+                    return variant.sale_price >= min && variant.sale_price <= max;
+                });
+                if (!priceMatch) return false;
+            }
+            
+            return true;
+        });
+
+        // BƯỚC 2: SẮP XẾP SẢN PHẨM ĐÃ LỌC
+        // Tạo bản sao để không làm thay đổi mảng `filtered`
+        const sorted = [...filtered];
+
+        switch (sortOption) {
+            case 'Giá: Tăng dần':
+                sorted.sort((a, b) => a.base_price - b.base_price);
+                break;
+            case 'Giá: Giảm dần':
+                sorted.sort((a, b) => b.base_price - a.base_price);
+                break;
+            case 'Tên: A-Z':
+                sorted.sort((a, b) => a.name.localeCompare(b.name));
+                break;
+            case 'Tên: Z-A':
+                sorted.sort((a, b) => b.name.localeCompare(a.name));
+                break;
+            case 'Hàng mới nhất':
+                sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                break;
+            case 'Hàng cũ nhất':
+                sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                break;
+            default: // 'Mặc định'
+                break;
+        }
+
+        return sorted;
+
+    }, [allProducts, selectedCategory, selectedFilters, sortOption]); // Các phụ thuộc không đổi
 
     useEffect(() => {
         const loadInitialData = async () => {
@@ -69,8 +130,8 @@ const ProductListPage: React.FC = () => {
                     fetchAllProducts(), 
                 ]);
                 
-                setCategories(categoriesData);
-                setAllProducts(allProductsData);
+                setCategories(categoriesData.result);
+                setAllProducts(allProductsData.result);
                 setFilterOptions(staticFilterOptions);
 
             } catch (error) {
@@ -107,42 +168,42 @@ const ProductListPage: React.FC = () => {
         });
     };
 
-    // LOGIC LỌC ĐẦY ĐỦ VÀ CHI TIẾT
-    const filteredProducts = allProducts.filter(product => {
-        // BƯỚC 1: LỌC THEO DANH MỤC
-        const categoryMatch = !selectedCategory || product.category === selectedCategory;
-        if (!categoryMatch) {
-            return false; // Nếu không khớp danh mục, loại ngay
-        }
+    // // LOGIC LỌC ĐẦY ĐỦ VÀ CHI TIẾT
+    // const filteredProducts = allProducts.filter(product => {
+    //     // BƯỚC 1: LỌC THEO DANH MỤC
+    //     const categoryMatch = !selectedCategory || product.category === selectedCategory;
+    //     if (!categoryMatch) {
+    //         return false; // Nếu không khớp danh mục, loại ngay
+    //     }
 
-        // BƯỚC 2: LỌC THEO MÀU SẮC
-        const selectedColors = selectedFilters.colors;
-        if (selectedColors.length > 0 && !selectedColors.includes(product.color)) {
-            return false; // Nếu có chọn màu và màu sản phẩm không khớp -> loại
-        }
+    //     // BƯỚC 2: LỌC THEO MÀU SẮC
+    //     const selectedColors = selectedFilters.colors;
+    //     if (selectedColors.length > 0 && !selectedColors.includes(product.color)) {
+    //         return false; // Nếu có chọn màu và màu sản phẩm không khớp -> loại
+    //     }
 
-        // BƯỚC 3: LỌC THEO GIÁ
-        const selectedPrices = selectedFilters.prices;
-        if (selectedPrices.length > 0) {
-            // Kiểm tra xem giá sản phẩm có khớp với BẤT KỲ khoảng giá nào đã chọn không
-            const priceMatch = selectedPrices.some(rangeString => {
-                const { min, max } = parsePriceRange(rangeString);
-                return product.price >= min && product.price <= max;
-            });
-            if (!priceMatch) {
-                return false; // Nếu không khớp với bất kỳ khoảng giá nào -> loại
-            }
-        }
+    //     // BƯỚC 3: LỌC THEO GIÁ
+    //     const selectedPrices = selectedFilters.prices;
+    //     if (selectedPrices.length > 0) {
+    //         // Kiểm tra xem giá sản phẩm có khớp với BẤT KỲ khoảng giá nào đã chọn không
+    //         const priceMatch = selectedPrices.some(rangeString => {
+    //             const { min, max } = parsePriceRange(rangeString);
+    //             return product.price >= min && product.price <= max;
+    //         });
+    //         if (!priceMatch) {
+    //             return false; // Nếu không khớp với bất kỳ khoảng giá nào -> loại
+    //         }
+    //     }
 
-        // (Tùy chọn) BƯỚC 4: LỌC THEO KÍCH THƯỚC (nếu cần)
-        // const selectedSizes = selectedFilters.sizes;
-        // if (selectedSizes.length > 0 && !product.sizes.some(s => selectedSizes.includes(s))) {
-        //     return false;
-        // }
+    //     // (Tùy chọn) BƯỚC 4: LỌC THEO KÍCH THƯỚC (nếu cần)
+    //     // const selectedSizes = selectedFilters.sizes;
+    //     // if (selectedSizes.length > 0 && !product.sizes.some(s => selectedSizes.includes(s))) {
+    //     //     return false;
+    //     // }
 
-        // Nếu sản phẩm vượt qua tất cả các bộ lọc
-        return true;
-    });
+    //     // Nếu sản phẩm vượt qua tất cả các bộ lọc
+    //     return true;
+    // });
     
     if (isLoading) {
         return <div className="flex justify-center items-center h-screen"><p>Đang tải dữ liệu trang sản phẩm...</p></div>;
@@ -177,9 +238,9 @@ const ProductListPage: React.FC = () => {
                     />
                 </aside>
                 <main className="col-span-12 md:col-span-9">
-                    <SortDropdown />
+                    <SortDropdown sortOption={sortOption} onSortChange={setSortOption}/>
                     <ActiveFilters filters={getActiveFilters()} onRemoveFilter={removeActiveFilter} />
-                    <ProductGrid products={filteredProducts} />
+                    <ProductGrid products={displayProducts} />
                     <Pagination />
                 </main>
             </div>

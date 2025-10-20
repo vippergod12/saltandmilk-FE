@@ -18,7 +18,7 @@ export const CategoryCarousel: React.FC = () => {
     const loadData = async () => {
       setLoading(true);
       const data = await fetchCategories();
-      setCategories(data);
+      setCategories(data.result);
       setLoading(false);
     };
     loadData();
@@ -48,7 +48,7 @@ export const CategoryCarousel: React.FC = () => {
             <div className="group border border-gray-200 text-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer">
               {/* Image */}
               <div className="aspect-[4/3] bg-gray-100 ">
-                <img src={category.image_url} alt={category.name} className="w-full h-full object-cover w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105" />
+                <img src={category.imgUrl} alt={category.name} className="w-full h-full object-cover w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105" />
               </div>
               {/* Bottom: 2 phần */}
               <div className="grid grid-cols-2">
