@@ -1,8 +1,8 @@
 // src/services/api.ts
 
- import { mockCategories, mockBestSellers, mockProductsByTab } from '../data/mockData';
+ import { mockBestSellers } from '../data/mockData';
 import axios from 'axios';
-import type { ApiResponse,Banner, Category, ProductBestSeller, Product, ProductTabId } from '../types';
+import type { ApiResponse,Banner, Category, ProductBestSeller, Product, ProductTabId, Tag,ProductVariant } from '../types';
 
 const API_DELAY = 100; // Giả lập độ trễ 500ms
 // 1. Tạo một instance của axios với cấu hình chung
@@ -53,21 +53,40 @@ export const fetchBestSellers = (): Promise<ProductBestSeller[]> => {
   });
 };
 
-// Dòng 4: Fetch Products by Tab
-export const fetchProductsByTab = (tabId: ProductTabId): Promise<Product[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockProductsByTab[tabId] || []);
-    }, API_DELAY);
-  });
+export const fetchProductTabs = async (): Promise<ApiResponse<Tag[]>> => {
+  try {
+    const response = await apiClient.get<ApiResponse<Tag[]>>('/product-tag');
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch product tabs:", error);
+    throw error;
+  }
 };
 
-export const fetchAllProducts = (): Promise<Product[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Lấy tất cả các mảng sản phẩm từ các tab và gộp lại
-      const allProducts = Object.values(mockProductsByTab).flat();
-      resolve(allProducts);
-    }, 100); // Giả lập độ trễ
-  });
+// Dòng 4: Fetch Products by Tab
+export const fetchProductsByTab = async (tabId: ProductTabId): Promise< ApiResponse<ProductVariant[]>> => {
+ try{
+    const response = await apiClient.get<ApiResponse<ProductVariant[]>>('/variants',
+      {
+        params: {
+          tagId: tabId,
+        },
+      }
+    );
+    return response.data;
+  }catch(error){
+    throw error;
+  }
+};
+
+export const fetchAllProducts = async (): Promise<ApiResponse<Product[]>> => {
+  try{
+
+    // Lấy tất cả các mảng sản phẩm từ các tab và gộp lại
+    const response = await apiClient.get<ApiResponse<Product[]>>('/getAll');
+    return response.data;
+  }catch(error){
+    throw error;
+  }
+
 };

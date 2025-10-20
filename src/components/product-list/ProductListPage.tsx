@@ -59,19 +59,21 @@ const ProductListPage: React.FC = () => {
         sizes: [],
         colors: [],
     });
+    
 
     const [sortOption, setSortOption] = useState<string>('Mặc định');
 // GỘP LOGIC: Chỉ còn một biến duy nhất `displayProducts`
     const displayProducts = useMemo(() => {
         // BƯỚC 1: LỌC SẢN PHẨM
         const filtered = allProducts.filter(product => {
+              const variant = product.variants;
             // Lọc theo danh mục
-            const categoryMatch = !selectedCategory || product.category === selectedCategory;
+            const categoryMatch = !selectedCategory || product.category?.id === selectedCategory;
             if (!categoryMatch) return false;
 
             // Lọc theo màu sắc
             const selectedColors = selectedFilters.colors;
-            if (selectedColors.length > 0 && !selectedColors.includes(product.color)) {
+            if (selectedColors.length > 0 && !selectedColors.includes(variant.color)) {
                 return false;
             }
 
@@ -80,7 +82,7 @@ const ProductListPage: React.FC = () => {
             if (selectedPrices.length > 0) {
                 const priceMatch = selectedPrices.some(rangeString => {
                     const { min, max } = parsePriceRange(rangeString);
-                    return product.price >= min && product.price <= max;
+                    return variant.sale_price >= min && variant.sale_price <= max;
                 });
                 if (!priceMatch) return false;
             }
@@ -94,10 +96,10 @@ const ProductListPage: React.FC = () => {
 
         switch (sortOption) {
             case 'Giá: Tăng dần':
-                sorted.sort((a, b) => a.price - b.price);
+                sorted.sort((a, b) => a.base_price - b.base_price);
                 break;
             case 'Giá: Giảm dần':
-                sorted.sort((a, b) => b.price - a.price);
+                sorted.sort((a, b) => b.base_price - a.base_price);
                 break;
             case 'Tên: A-Z':
                 sorted.sort((a, b) => a.name.localeCompare(b.name));
@@ -128,8 +130,8 @@ const ProductListPage: React.FC = () => {
                     fetchAllProducts(), 
                 ]);
                 
-                setCategories(categoriesData);
-                setAllProducts(allProductsData);
+                setCategories(categoriesData.result);
+                setAllProducts(allProductsData.result);
                 setFilterOptions(staticFilterOptions);
 
             } catch (error) {
