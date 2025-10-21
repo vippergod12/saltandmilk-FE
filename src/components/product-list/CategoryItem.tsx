@@ -5,21 +5,22 @@ import { Plus, Minus } from 'lucide-react';
 
 interface CategoryItemProps {
   category: Category;
-  // Thay đổi 1: Đồng bộ hóa kiểu dữ liệu
-  onSelectCategory: (categoryName: string | null) => void;
-  selectedCategory: string | null;
+  onSelectCategory: (category_id: number | null) => void;
+  selectedCategory: number | null;
 }
 
 const CategoryItem: React.FC<CategoryItemProps> = ({ category, onSelectCategory, selectedCategory }) => {
   const [isOpen, setIsOpen] = useState(false);
   const hasChildren = category.children && category.children.length > 0;
-  const isActive = selectedCategory === category.name;
+  
+  // SỬA Ở ĐÂY: Dùng `category.category_id`
+  const isActive = selectedCategory === category.category_id;
 
   return (
     <li className="my-1">
-      {/* Thay đổi 2: Thêm class active */}
       <div className={`flex justify-between items-center p-2 rounded-md cursor-pointer ${isActive ? 'bg-indigo-100 text-indigo-700' : 'hover:bg-gray-100'}`}>
-        <span onClick={() => onSelectCategory(category.name)} className="flex-grow">
+        {/* SỬA Ở ĐÂY: Dùng `category.category_id` */}
+        <span onClick={() => onSelectCategory(category.category_id)} className="flex-grow">
           {category.name}
         </span>
         {hasChildren && (
@@ -32,7 +33,8 @@ const CategoryItem: React.FC<CategoryItemProps> = ({ category, onSelectCategory,
         <ul className="pl-4 border-l border-gray-200 ml-2">
           {category.children?.map((child) => (
             <CategoryItem 
-              key={child.id} 
+              // SỬA NỐT Ở ĐÂY (key prop): Dùng `child.category_id`
+              key={child.category_id} 
               category={child} 
               onSelectCategory={onSelectCategory}
               selectedCategory={selectedCategory}

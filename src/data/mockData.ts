@@ -1,6 +1,6 @@
 // src/data/mockData.ts
 
-import type { ProductBestSeller, Product, ProductTab, ProductTabId } from '../types';
+import type { ProductBestSeller } from '../types';
 
 // Dòng 2: Mock Categories (Khớp với interface Category)
 // export const mockCategories: Category[] = [

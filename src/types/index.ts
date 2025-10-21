@@ -19,12 +19,12 @@ export interface Banner {
 }
 
 // Dòng 2: Danh mục
-export interface Category {
-  id: string;
+export interface Category { 
+  category_id: CategoryId; // SỬA: Đổi sang number để khớp với category_id
   name: string;
   imgUrl: string;
   slug: string;
-  children?: Category[]; // Mảng chứa các category con, hỗ trợ đệ quy
+  children?: Category[];
 }
 
 // Dòng 3: Sản phẩm bán chạy
@@ -48,7 +48,7 @@ export interface Product {
   
     // Liên kết
   category?: {
-    id: string;
+    category_id: CategoryId;
     name: string;
   };
   tags?: {
@@ -63,7 +63,7 @@ export interface ProductVariant {
   sku: string;
   stockQuantity: number;
   price: number;
-  salePrice: number | null;
+  salePrice: number;
   imageUrl: string;
   productId: string;
   productName: string;
@@ -71,11 +71,15 @@ export interface ProductVariant {
   sizeName: string;
   colorId: number;
   colorName: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 export interface Tag{
   tag_id: number;
   name: string;
 }
+
+export type CategoryId = number;
 
 // Dòng 4: Loại Tab
 export type ProductTabId = number;
