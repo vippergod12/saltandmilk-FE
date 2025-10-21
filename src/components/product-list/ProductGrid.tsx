@@ -1,17 +1,17 @@
 // src/components/product-list/ProductGrid.tsx
 import React from 'react';
-import type { Product } from '../../types';
+import type { ProductVariant } from '../../types';
 import ProductCard from './ProductCard';
 
 interface ProductGridProps {
-    products: Product[];
+    variants: ProductVariant[];
 }
 
-const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
+const ProductGrid: React.FC<ProductGridProps> = ({ variants }) => {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {products.map(product => (
-                <ProductCard key={product.id} product={product} />
+            {variants.map(variant => (
+                <ProductCard key={variant.variantId} variants={variant} />
             ))}
         </div>
     );

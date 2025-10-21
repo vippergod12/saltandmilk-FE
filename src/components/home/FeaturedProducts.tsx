@@ -1,50 +1,74 @@
 // src/components/home/FeaturedProducts.tsx
+import React, { useEffect, useState } from "react";
+import { fetchProductsByTab, fetchProductTabs } from "../../services/api";
+import type { ProductVariant, Tag } from "../../types";
+import { SimpleProductCard } from "./SimpleProductCard";
 
-import React, { useEffect, useState } from 'react';
-import { productTabs } from '../../data/mockData';
-import { fetchProductsByTab } from '../../services/api';
-import type { Product, ProductTabId } from '../../types';
-import { SimpleProductCard } from './SimpleProductCard';
+
 
 export const FeaturedProducts: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<ProductTabId>('promotion');
-  const [products, setProducts] = useState<Product[]>([]);
+  const [activeTab, setActiveTab] = useState<number | null>(null); // đổi sang number
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tabs, setTabs] = useState<Tag[]>([]); // danh sách tag
 
-  // Effect này sẽ chạy lại mỗi khi activeTab thay đổi
+  // Lấy danh sách tag khi component mount
   useEffect(() => {
-    const loadData = async () => {
+    const loadTabs = async () => {
+      try {
+        const tabData = await fetchProductTabs(); // gọi API lấy tag
+
+        setTabs(tabData.result);
+
+        // nếu có ít nhất 1 tag thì set tag đầu tiên làm active
+        if (tabData.result.length > 0) {
+          setActiveTab(tabData.result[0].tag_id);
+        }
+      } catch (err) {
+        console.error("Failed to fetch tabs:", err);
+      }
+    };
+    loadTabs();
+  }, []);
+
+  // Lấy danh sách sản phẩm theo tag đang active
+  useEffect(() => {
+    const loadProducts = async () => {
+      if (activeTab === null) return;
       setLoading(true);
       try {
         const data = await fetchProductsByTab(activeTab);
-        setProducts(data);
+        console.log("product by tag: " + activeTab);
+        setVariants(data.result);
       } catch (error) {
         console.error("Failed to fetch products:", error);
       } finally {
         setLoading(false);
       }
     };
-    loadData();
-  }, [activeTab]); // Phụ thuộc vào activeTab
+    loadProducts();
+  }, [activeTab]);
 
   return (
     <div>
-      <h2 className="text-3xl mb-8 text-center text-gray-800 font-semibold">Khám Phá Thêm</h2>
-      
+      <h2 className="text-3xl mb-8 text-center text-gray-800 font-semibold">
+        Khám Phá Thêm
+      </h2>
+
       {/* Dòng 1: Các Tab */}
       <div className="flex justify-center items-center gap-4 mb-6">
-        {productTabs.map((tab) => (
+        {tabs.map((tab) => (
           <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            key={tab.tag_id}
+            onClick={() => setActiveTab(tab.tag_id)}
             className={`
               px-5 py-2 rounded-full font-medium transition-colors
-              ${activeTab === tab.id 
-                ? 'bg-blue-600 text-white shadow-lg' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
+              ${activeTab === tab.tag_id
+                ? "bg-blue-600 text-white shadow-lg"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"}
             `}
           >
-            {tab.label}
+            {tab.name}
           </button>
         ))}
       </div>
@@ -52,15 +76,17 @@ export const FeaturedProducts: React.FC = () => {
       {/* Dòng 2: Danh sách sản phẩm */}
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* Skeleton placeholders */}
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="aspect-square bg-gray-200 rounded-lg animate-pulse"></div>
+            <div
+              key={i}
+              className="aspect-square bg-gray-200 rounded-lg animate-pulse"
+            ></div>
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-gray-800 font-semibold">
-          {products.map((product) => (
-            <SimpleProductCard key={product.id} product={product} />
+          {variants.map((variant) => (
+            <SimpleProductCard key={variant.variantId} variants={variant} />
           ))}
         </div>
       )}
