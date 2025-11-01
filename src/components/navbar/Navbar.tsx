@@ -3,8 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 // 2. IMPORT types và API thật
-// (Đường dẫn dựa trên file api.ts và types/index.ts bạn cung cấp)
-import type { Category, ProductVariant } from '../../types'; 
+// (Giả sử file types của bạn nằm ở '../types')
+import type { Category, ProductVariant } from '../../types';
 import { fetchCategories, searchProductSuggestions } from '../../services/api';
 
 // --- 1B. ĐỊNH NGHĨA ICON (Các component SVG thay thế react-icons) ---
@@ -47,6 +47,17 @@ const FiLoader = ({ size = 24, className = "" }: { size?: number, className?: st
     <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
   </svg>
 );
+// --- BỔ SUNG 2 ICON CHO MEGA MENU ---
+const FiChevronDown = ({ size = 16, className = "" }: { size?: number, className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="6 9 12 15 18 9"></polyline>
+  </svg>
+);
+const FiChevronUp = ({ size = 16, className = "" }: { size?: number, className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="18 15 12 9 6 15"></polyline>
+  </svg>
+);
 
 
 // 4. Custom Hook: useDebounce
@@ -64,11 +75,66 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
+// --- 5. COMPONENT CON CHO MOBILE (ĐỂ XỬ LÝ ĐỆ QUY) ---
+interface MobileNavItemProps {
+  item: Category;
+  toggleParentMenu: () => void; // Hàm để đóng menu mobile chính
+}
+
+const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, toggleParentMenu }) => {
+  const [isOpen, setIsOpen] = useState(false); // State cho accordion
+  const hasChildren = item.children && item.children.length > 0;
+
+  const handleToggle = () => {
+    if (hasChildren) {
+      setIsOpen(!isOpen); // Chỉ bật/tắt accordion
+    }
+  };
+
+  const handleLinkClick = () => {
+    if (!hasChildren) {
+      toggleParentMenu(); // Đóng menu mobile chính nếu click vào link con
+    }
+  };
+
+  return (
+    <li className="w-full">
+      <div className="flex justify-between items-center w-full">
+        <Link
+          to={`/category/${item.slug}`}
+          onClick={handleLinkClick}
+          className={`inline-block text-gray-800 hover:text-blue-600 text-base font-medium transition-all duration-300 transform hover:-translate-y-1 ${hasChildren ? 'flex-1' : ''}`}
+        >
+          {item.name}
+        </Link>
+        {hasChildren && (
+          <button onClick={handleToggle} className="p-2 text-gray-600">
+            {isOpen ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
+        )}
+      </div>
+      {/* Đệ quy: Render menu con nếu có và đang mở */}
+      {hasChildren && isOpen && (
+        <ul className="pl-4 mt-2 flex flex-col items-start space-y-3">
+          {item.children?.map((child) => (
+            <MobileNavItem 
+              key={child.category_id} 
+              item={child} 
+              toggleParentMenu={toggleParentMenu} 
+            />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+};
+
+
 // --- COMPONENT CHÍNH ---
 
 const Navbar: React.FC = () => {
   // 3. State cho Nav Items (dùng Category[])
-  const [navItems, setNavItems] = useState<Category[]>([]); 
+  const [navItems, setNavItems] = useState<Category[]>([]);
   const [loadingNav, setLoadingNav] = useState<boolean>(true);
   const [errorNav, setErrorNav] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -78,12 +144,12 @@ const Navbar: React.FC = () => {
   const [suggestions, setSuggestions] = useState<ProductVariant[]>([]); // Dùng type thật
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  
+
   // Trì hoãn 500ms
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  
+
   // 4. KHÔI PHỤC useNavigate
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const toggleMobileMenu = () => {
@@ -96,8 +162,8 @@ const Navbar: React.FC = () => {
       try {
         setLoadingNav(true);
         const response = await fetchCategories(); // Gọi API thật
-        // Lấy 6 mục đầu tiên từ .result
-        setNavItems(response.result.slice(0, 6)); 
+        // API CẦN TRẢ VỀ CẤU TRÚC ĐỆ QUY (children)
+        setNavItems(response.result); // Bỏ slice(0, 6)
       } catch (err) {
         setErrorNav("Không thể tải danh mục");
         console.error(err);
@@ -151,12 +217,12 @@ const Navbar: React.FC = () => {
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      setIsSearchFocused(false); 
-      setSearchTerm(""); 
+      setIsSearchFocused(false);
+      setSearchTerm("");
       navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`); // Dùng navigate
     }
   };
-  
+
   // 10. Hàm đóng gợi ý (Giữ nguyên)
   const closeSuggestions = () => {
     setIsSearchFocused(false);
@@ -164,19 +230,50 @@ const Navbar: React.FC = () => {
   }
 
   // 11. Render Nav (dùng Category[] và <Link>)
+  // *** ĐÂY LÀ PHẦN ĐƯỢC THIẾT KẾ LẠI CHO MEGA MENU ***
   const renderHorizontalNavigation = () => {
     if (loadingNav) return <div className="text-center text-gray-500">Đang tải...</div>;
     if (errorNav) return <div className="text-center text-red-500">Lỗi: {errorNav}</div>;
-    
+
     return (
-      <ul className="flex items-center justify-between">
-        {navItems.map((item) => (
-          <li key={item.category_id}>
-            <Link to={`/category/${item.slug}`} className="inline-block text-gray-600 hover:text-blue-600 font-medium transition-all duration-300 transform hover:-translate-y-1">
-              {item.name.toUpperCase()}
-            </Link>
-          </li>
-        ))}
+      // Bỏ justify-between, dùng gap
+      <ul className="flex items-center gap-6"> 
+        {navItems.map((item) => {
+          const hasChildren = item.children && item.children.length > 0;
+
+          return (
+            // SỬA LỖI: Thêm pb-2 (padding-bottom) để "bắc cầu" qua khoảng hở
+            <li key={item.category_id} className="relative group pb-2">
+              <Link 
+                to={`/category/${item.slug}`} 
+                className="inline-flex items-center gap-1 text-gray-600 hover:text-blue-600 font-medium transition-all duration-300"
+              >
+                {item.name.toUpperCase()}
+                {/* Thêm icon mũi tên nếu có children */}
+                {hasChildren && <FiChevronDown size={16} className="transition-transform group-hover:rotate-180" />}
+              </Link>
+              
+              {/* === MEGA MENU DROPDOWN === */}
+              {hasChildren && (
+                // SỬA LỖI: Bỏ mt-2 (margin-top) để menu dính liền vào khu vực padding của thẻ li
+                <div className="absolute top-full left-0 w-auto min-w-[400px] bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden
+                                hidden group-hover:block transition-all duration-300 opacity-0 group-hover:opacity-100 z-50">
+                  <div className="p-6 grid grid-cols-2 gap-x-6 gap-y-4">
+                    {item.children?.map((child) => (
+                      <Link 
+                        key={child.category_id} 
+                        to={`/category/${child.slug}`} 
+                        className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 p-2 rounded-md"
+                      >
+                        {child.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </li>
+          );
+        })}
       </ul>
     );
   };
@@ -187,8 +284,8 @@ const Navbar: React.FC = () => {
     <header className="bg-white shadow-md py-4 w-full sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap items-center justify-between xl:grid xl:grid-cols-12 xl:gap-4">
-          
-          <div className="w-1/2 md:w-auto xl:col-span-3"> {/* Sửa lỗi md/w-auto */}
+
+          <div className="w-1/2 md:w-auto xl:col-span-3">
             <Link to="/" className="text-2xl font-bold text-gray-800 inline-block">
               YourLogo
             </Link>
@@ -196,10 +293,10 @@ const Navbar: React.FC = () => {
 
           {/* Search & Nav (Desktop) */}
           <div className="w-full order-3 xl:order-2 xl:col-span-6 mt-4 xl:mt-0 flex flex-col gap-y-4">
-            
-            <div 
-              className="w-full relative" 
-              ref={searchContainerRef} 
+
+            <div
+              className="w-full relative"
+              ref={searchContainerRef}
             >
               <form onSubmit={handleSearchSubmit}>
                 <div className="relative">
@@ -228,8 +325,8 @@ const Navbar: React.FC = () => {
                   ) : suggestions.length > 0 ? (
                     <ul className="max-h-96 overflow-y-auto divide-y divide-gray-100">
                       {suggestions.map(variant => ( // Dùng variant
-                        <li key={variant.variantId}> 
-                          <Link 
+                        <li key={variant.variantId}>
+                          <Link
                             to={`/products/${variant.productId}`} // Link đến trang sản phẩm bằng productId
                             onClick={closeSuggestions}
                             className="flex items-center p-3 hover:bg-gray-50"
@@ -254,14 +351,14 @@ const Navbar: React.FC = () => {
                 </div>
               )}
             </div>
-            
+
             <nav className="h-6 hidden xl:block">
               {renderHorizontalNavigation()}
             </nav>
           </div>
 
           {/* Icons (dùng <Link>) */}
-          <div className="w-1/2 md:w-auto order-2 xl:order-3 xl:col-span-3"> {/* Sửa lỗi md/w-auto */}
+          <div className="w-1/2 md:w-auto order-2 xl:order-3 xl:col-span-3">
             <div className="flex items-center justify-end space-x-4">
               <Link to="/wishlist" className="text-gray-600 hover:text-blue-600">
                 <FiHeart size={24} />
@@ -285,14 +382,15 @@ const Navbar: React.FC = () => {
         </nav>
 
         {/* 13. Menu cho Mobile (dùng <Link>) */}
-        <div className={`w-full md:hidden overflow-hidden transition-all ease-in-out duration-500 ${isMobileMenuOpen ? 'max-h-96 mt-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className={`w-full md:hidden overflow-hidden transition-all ease-in-out duration-500 ${isMobileMenuOpen ? 'max-h-screen mt-4 opacity-100' : 'max-h-0 opacity-0'}`}>
           <ul className="flex flex-col items-start space-y-4 pt-4 border-t border-gray-200">
+            {/* SỬ DỤNG COMPONENT ĐỆ QUY MỚI */}
             {navItems.map((item) => (
-              <li key={item.category_id}>
-                <Link to={`/category/${item.slug}`} className="inline-block text-gray-800 hover:text-blue-600 text-base font-medium transition-all duration-300 transform hover:-translate-y-1">
-                  {item.name}
-                </Link>
-              </li>
+              <MobileNavItem 
+                key={item.category_id} 
+                item={item} 
+                toggleParentMenu={toggleMobileMenu} 
+              />
             ))}
           </ul>
         </div>

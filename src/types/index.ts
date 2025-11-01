@@ -1,11 +1,24 @@
 // src/types/index.ts
 
-import React from "react";
+// import React from "react";
 
 export interface ApiResponse<T> {
   code: number;
   result: T;
   message?: string; // Tùy chọn, nếu API của bạn có trả về
+}
+
+// Định nghĩa cấu trúc Page trả về từ Spring Boot
+export interface PageResponse<T> {
+  content: T[]; // Mảng variants thực sự nằm ở đây (quan trọng nhất!)
+  totalPages: number; // Tổng số trang
+  number: number; // Số trang hiện tại (bắt đầu từ 0)
+  size: number; // Kích thước trang
+  totalElements: number; // Tổng số phần tử
+  // Thêm các thuộc tính Page khác nếu cần:
+  // first: boolean;
+  // last: boolean;
+  // empty: boolean;
 }
 
 // Dòng 1: Banner
