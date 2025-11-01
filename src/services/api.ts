@@ -2,7 +2,7 @@
 
  import { mockBestSellers } from '../data/mockData';
 import axios from 'axios';
-import type { ApiResponse,Banner, Category, ProductBestSeller, Product, ProductTabId, Tag,ProductVariant, CategoryId } from '../types';
+import type { ApiResponse,Banner, Category, ProductBestSeller, Product, ProductTabId, Tag,ProductVariant, CategoryId, Size, Color } from '../types';
 
 const API_DELAY = 100; // Giả lập độ trễ 500ms
 // 1. Tạo một instance của axios với cấu hình chung
@@ -13,6 +13,24 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+export const fetchSizes = async(): Promise<ApiResponse<Size[]>>=>{
+  try{
+    const response = await apiClient.get<ApiResponse<Size[]>>('/sizes');
+    return response.data;
+  }catch(error){
+    throw error;
+  }
+}
+
+export const fetchColors = async(): Promise<ApiResponse<Color[]>> => {
+  try{
+    const response = await apiClient.get<ApiResponse<Color[]>>('/colors');
+    return response.data;
+  }catch(error){
+    throw error;
+  }
+}
 
 export const fecthVariantsByCategoryId = async (category_id: CategoryId): Promise<ApiResponse<ProductVariant[]>>=>{
   try{

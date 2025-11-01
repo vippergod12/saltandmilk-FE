@@ -27,6 +27,16 @@ export interface Category {
   children?: Category[];
 }
 
+export interface Size{
+  size_id: number;
+  name: string;
+}
+
+export interface Color{
+  color_id: number;
+  name: string;
+}
+
 // Dòng 3: Sản phẩm bán chạy
 export interface ProductBestSeller {
   id: string;

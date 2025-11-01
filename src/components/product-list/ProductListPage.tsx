@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import type { Category, FilterOptions, ProductVariant, ApiResponse } from '../../types';
-import { fetchCategories, fetchAllProducts, featchAllVariants, fecthVariantsByCategoryId } from '../../services/api';
+import { fetchCategories, fetchAllProducts, featchAllVariants, fecthVariantsByCategoryId, fetchColors, fetchSizes } from '../../services/api';
 
 // Import các components con
 import CategoryList from './CategoryList';
@@ -12,11 +12,7 @@ import Pagination from './Pagination';
 import ProductCardSkeleton from './ProductCardSkeleton'; // <-- 1. IMPORT SKELETON
 // import { all } from 'axios'; // Loại bỏ import không dùng tới
 
-const staticFilterOptions: FilterOptions = {
-    prices: ['Dưới 100.000đ', '100.000đ - 300.000đ', '300.000đ - 500.000đ', 'Trên 500.000đ'],
-    sizes: ['S', 'M', 'L', 'XL'],
-    colors: ['Trắng', 'Đen', 'Xanh', 'Be'],
-};
+const staticPriceOptions = ['Dưới 100.000đ', '100.000đ - 300.000đ', '300.000đ - 500.000đ', 'Trên 500.000đ']
 
 // HÀM HỖ TRỢ: Chuyển đổi chuỗi giá thành khoảng số min-max
 const parsePriceRange = (rangeString: string): { min: number; max: number } => {
@@ -83,7 +79,20 @@ const ProductListPage: React.FC = () => {
                 return false;
             }
 
+            // ===============================================
+            // 5. BỔ SUNG LOGIC LỌC MÀU SẮC (BẠN ĐANG THIẾU)
+            // ===============================================
+            const selectedColors = selectedFilters.colors;
+            if (selectedColors.length > 0) {
+                // Giả sử variant của bạn có thuộc tính `colorName`
+                if (!selectedColors.includes(variant.colorName)) {
+                    return false;
+                }
+            }
+
             return true;
+
+        
         });
 
         // BƯỚC 2: SẮP XẾP BIẾN THỂ ĐÃ LỌC
@@ -121,16 +130,41 @@ const ProductListPage: React.FC = () => {
 
     // useEffect 1: Tải dữ liệu tĩnh (categories), chỉ chạy 1 LẦN
     useEffect(() => {
-        const loadStaticData = async () => {
+const loadInitialData = async () => {
             try {
-                const categoriesData = await fetchCategories();
+                // 4. Tải song song tất cả
+                const [categoriesData, sizesData, colorsData] = await Promise.all([
+                    fetchCategories(),
+                    fetchSizes(), // <-- TẢI SIZES
+                    fetchColors() // <-- TẢI COLORS
+                ]);
+
                 setCategories(categoriesData.result);
-                setFilterOptions(staticFilterOptions);
+                
+                // 5. Transform dữ liệu (Giả sử API trả về { id, name })
+                // Nếu API của bạn trả về mảng string thì không cần .map()
+                const dynamicSizes = sizesData.result.map(size => size.name); 
+                const dynamicColors = colorsData.result.map(color => color.name);
+
+                // 6. Set state với dữ liệu động
+                setFilterOptions({
+                    prices: staticPriceOptions, // Giá thì vẫn static
+                    sizes: dynamicSizes,
+                    colors: dynamicColors
+                });
+
             } catch (error) {
-                console.error("Failed to fetch categories:", error);
+                console.error("Failed to fetch initial page data:", error);
+                // Có thể set fallback nếu API lỗi
+                setFilterOptions({
+                    prices: staticPriceOptions,
+                    sizes: [],
+                    colors: []
+                });
             }
         };
-        loadStaticData();
+        
+        loadInitialData();
     }, []); // Mảng rỗng -> chạy 1 lần duy nhất
 
     // useEffect 2: Tải variants, chạy lại MỖI KHI `selectedCategory` thay đổi
