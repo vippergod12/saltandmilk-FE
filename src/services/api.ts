@@ -14,6 +14,21 @@ const apiClient = axios.create({
   },
 });
 
+export const searchProductSuggestions = async (query: string): Promise<ApiResponse<ProductVariant[]>> => {
+  try {
+    const response = await apiClient.get<ApiResponse<ProductVariant[]>>('/variants/search', {
+      params: {
+        q: query,
+        limit: 5 // Có thể thêm giới hạn số lượng gợi ý
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Lỗi khi tìm kiếm gợi ý:', error);
+    throw error;
+  }
+};
+
 export const fetchSizes = async(): Promise<ApiResponse<Size[]>>=>{
   try{
     const response = await apiClient.get<ApiResponse<Size[]>>('/sizes');
