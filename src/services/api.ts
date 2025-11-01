@@ -2,7 +2,7 @@
 
  import { mockBestSellers } from '../data/mockData';
 import axios from 'axios';
-import type { ApiResponse,Banner, Category, ProductBestSeller, Product, ProductTabId, Tag,ProductVariant } from '../types';
+import type { ApiResponse,Banner, Category, ProductBestSeller, Product, ProductTabId, Tag,ProductVariant, CategoryId, Size, Color } from '../types';
 
 const API_DELAY = 100; // Giả lập độ trễ 500ms
 // 1. Tạo một instance của axios với cấu hình chung
@@ -13,6 +13,37 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+export const fetchSizes = async(): Promise<ApiResponse<Size[]>>=>{
+  try{
+    const response = await apiClient.get<ApiResponse<Size[]>>('/sizes');
+    return response.data;
+  }catch(error){
+    throw error;
+  }
+}
+
+export const fetchColors = async(): Promise<ApiResponse<Color[]>> => {
+  try{
+    const response = await apiClient.get<ApiResponse<Color[]>>('/colors');
+    return response.data;
+  }catch(error){
+    throw error;
+  }
+}
+
+export const fecthVariantsByCategoryId = async (category_id: CategoryId): Promise<ApiResponse<ProductVariant[]>>=>{
+  try{
+    const response = await apiClient.get<ApiResponse<ProductVariant[]>>('/variants/get-by-cate',      {
+        params: {
+          category_id: category_id,
+        },
+      })
+    return response.data;
+  }catch(error){
+    throw error;
+  }
+}
 
 
 // Dòng 1: Fetch Banners
@@ -53,6 +84,16 @@ export const fetchBestSellers = (): Promise<ProductBestSeller[]> => {
   });
 };
 
+// phải dựa trên hoá đơn xem thuộc product Id và product_variants
+// export const fetchBestSellers = async(): Promise<ApiResponse<ProductBestSeller[]>> => {
+//   try{
+//     const response = await apiClient.get<ApiResponse<ProductBestSeller[]>>('/bestseller');
+//     return response.data;
+//   }catch(error){
+//     throw error;
+//   }
+// };
+
 export const fetchProductTabs = async (): Promise<ApiResponse<Tag[]>> => {
   try {
     const response = await apiClient.get<ApiResponse<Tag[]>>('/product-tag');
@@ -79,11 +120,20 @@ export const fetchProductsByTab = async (tabId: ProductTabId): Promise< ApiRespo
   }
 };
 
+export const featchAllVariants = async() : Promise<ApiResponse<ProductVariant[]>>=>{
+  try{
+    const response = await apiClient.get<ApiResponse<ProductVariant[]>>('/variants/all');
+    return response.data;
+  }catch(error){
+    throw error;
+  }
+}
+
 export const fetchAllProducts = async (): Promise<ApiResponse<Product[]>> => {
   try{
 
     // Lấy tất cả các mảng sản phẩm từ các tab và gộp lại
-    const response = await apiClient.get<ApiResponse<Product[]>>('/getAll');
+    const response = await apiClient.get<ApiResponse<Product[]>>('/products/getAll');
     return response.data;
   }catch(error){
     throw error;
