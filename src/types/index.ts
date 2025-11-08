@@ -1,11 +1,45 @@
 // src/types/index.ts
 
-import React from "react";
+// import React from "react";
 
 export interface ApiResponse<T> {
   code: number;
   result: T;
   message?: string; // Tùy chọn, nếu API của bạn có trả về
+}
+
+export interface token {
+  token: string;
+}
+
+export interface Role{
+  role_id: string;
+  name: string;
+}
+
+export interface User{
+  username: string;
+  full_name: string;
+  email: string;
+  role: Role;
+}
+
+export interface User{
+  username: string;
+  password: string;
+}
+
+// Định nghĩa cấu trúc Page trả về từ Spring Boot
+export interface PageResponse<T> {
+  content: T[]; // Mảng variants thực sự nằm ở đây (quan trọng nhất!)
+  totalPages: number; // Tổng số trang
+  number: number; // Số trang hiện tại (bắt đầu từ 0)
+  size: number; // Kích thước trang
+  totalElements: number; // Tổng số phần tử
+  // Thêm các thuộc tính Page khác nếu cần:
+  // first: boolean;
+  // last: boolean;
+  // empty: boolean;
 }
 
 // Dòng 1: Banner
@@ -55,8 +89,7 @@ export interface Product {
   image_url: string;
   base_price: number;
   createdAt: string; // Dùng để sắp xếp hàng mới/cũ
-  
-    // Liên kết
+
   category?: {
     category_id: CategoryId;
     name: string;
@@ -68,6 +101,31 @@ export interface Product {
 variants: ProductVariant[];
 }
 
+export interface NestedProduct {
+  product_id: string;
+  name: string;
+  description: string;
+  basePrice: number;
+  isPublished: boolean | null;
+  variants: ProductVariant[];
+  category: Category; // Tái sử dụng type Category bạn đã có
+  tags: Tag[];      // Tái sử dụng type Tag bạn đã có
+}
+export interface Tag{
+  tag_id: number;
+  name: string;
+}
+
+export interface NestedSize {
+  size_id: number;
+  name: string;
+}
+
+export interface NestedColor {
+  color_id: number;
+  name: string;
+}
+
 export interface ProductVariant {
   variantId: string;
   sku: string;
@@ -75,19 +133,16 @@ export interface ProductVariant {
   price: number;
   salePrice: number;
   imageUrl: string;
-  productId: string;
-  productName: string;
-  sizeId: number;
-  sizeName: string;
-  colorId: number;
-  colorName: string;
-  createdAt: Date;
+  createdAt: Date; // (JSON của bạn là string, nhưng TS có thể ép kiểu)
   updatedAt: Date;
+  product: NestedProduct;
+  // --- PHẦN LỒNG NHAU (ĐÚNG THEO JSON) ---
+  color: NestedColor;
+  size: NestedSize;
+  
 }
-export interface Tag{
-  tag_id: number;
-  name: string;
-}
+
+
 
 export type CategoryId = number;
 

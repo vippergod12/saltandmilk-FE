@@ -18,13 +18,13 @@ export const SimpleProductCard: React.FC<Props> = ({ variants }) => {
       <div className="aspect-square overflow-hidden">
         <img 
           src={variants.imageUrl} 
-          alt={variants.productName} 
+          alt={variants.product.name} 
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
       </div>
       <div className="p-3">
         <h3 className="font-medium text-sm h-10 mb-1 line-clamp-2">
-          {variants.productName}
+          {variants.product.name}
         </h3>
         <div className="flex items-center gap-2 justify-between">
 
