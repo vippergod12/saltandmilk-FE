@@ -75,14 +75,14 @@ const ProductListPage: React.FC = () => {
 
             // Lọc kích thước
             const selectedSizes = selectedFilters.sizes;
-            if (selectedSizes.length > 0 && !selectedSizes.includes(variant.sizeName)) {
+            if (selectedSizes.length > 0 && !selectedSizes.includes(variant.size.name)) {
                 return false;
             }
 
             // LỌC MÀU SẮC
             const selectedColors = selectedFilters.colors;
             if (selectedColors.length > 0) {
-                if (!selectedColors.includes(variant.colorName)) {
+                if (!selectedColors.includes(variant.color.name)) {
                     return false;
                 }
             }
@@ -100,10 +100,10 @@ const ProductListPage: React.FC = () => {
                 sorted.sort((a, b) => (b.salePrice ?? b.price ?? 0) - (a.salePrice ?? a.price ?? 0));
                 break;
             case 'Tên: A-Z':
-                sorted.sort((a, b) => (a.productName ?? '').localeCompare(b.productName ?? ''));
+                sorted.sort((a, b) => (a.product.name ?? '').localeCompare(b.product.name ?? ''));
                 break;
             case 'Tên: Z-A':
-                sorted.sort((a, b) => (b.productName ?? '').localeCompare(a.productName ?? ''));
+                sorted.sort((a, b) => (b.product.name ?? '').localeCompare(a.product.name ?? ''));
                 break;
             case 'Hàng mới nhất':
                 sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());

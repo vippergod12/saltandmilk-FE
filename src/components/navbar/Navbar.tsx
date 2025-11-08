@@ -152,6 +152,13 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+  const token = localStorage.getItem("accessToken");
+  setIsLoggedIn(!!token);
+}, [location.pathname]); // Phụ thuộc: location.pathname
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
@@ -327,13 +334,13 @@ const Navbar: React.FC = () => {
                       {suggestions.map(variant => ( // Dùng variant
                         <li key={variant.variantId}>
                           <Link
-                            to={`/products/${variant.productId}`} // Link đến trang sản phẩm bằng productId
+                            to={`/products/${variant.product.product_id}`} // Link đến trang sản phẩm bằng productId
                             onClick={closeSuggestions}
                             className="flex items-center p-3 hover:bg-gray-50"
                           >
-                            <img src={variant.imageUrl} alt={variant.productName} className="w-12 h-12 object-cover rounded-md mr-3" />
+                            <img src={variant.imageUrl} alt={variant.product.name} className="w-12 h-12 object-cover rounded-md mr-3" />
                             <div className="flex-1">
-                              <p className="font-medium text-gray-800 truncate">{variant.productName}</p>
+                              <p className="font-medium text-gray-800 truncate">{variant.product.name}</p>
                               {/* Ưu tiên salePrice, nếu không có thì dùng price */}
                               <p className="text-sm text-red-600 font-semibold">
                                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(variant.salePrice ?? variant.price)}
@@ -366,9 +373,23 @@ const Navbar: React.FC = () => {
               <Link to="/cart" className="text-gray-600 hover:text-blue-600">
                 <FiShoppingCart size={24} />
               </Link>
-              <Link to="/account" className="text-gray-600 hover:text-blue-600">
-                <FiUser size={24} />
-              </Link>
+              {isLoggedIn ? (
+                // Đã đăng nhập: Hiển thị icon
+                <Link to="/my-info" className="text-gray-600 hover:text-blue-600">
+                  <FiUser size={24} />
+                </Link>
+              ) : (
+                // Chưa đăng nhập: Hiển thị text "Đăng nhập / Đăng ký"
+                <div className="flex items-center space-x-2 text-sm font-medium">
+                  <Link to="/account" className="text-gray-600 hover:text-blue-600">
+                    Đăng nhập
+                  </Link>
+                  <span className="text-gray-400">/</span>
+                  <Link to="/register" className="text-gray-600 hover:text-blue-600">
+                    Đăng ký
+                  </Link>
+                </div>
+              )}
               <button onClick={toggleMobileMenu} className="text-gray-600 hover:text-blue-600 md:hidden">
                 {isMobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
               </button>

@@ -11,7 +11,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ variants }) => {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {variants.map(variant => (
-                <ProductCard key={variant.variantId} variants={variant} />
+                <ProductCard key={variant.variantId} variant={variant} />
             ))}
         </div>
     );
